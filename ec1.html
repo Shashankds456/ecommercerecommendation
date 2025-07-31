@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce Store</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Light blue-gray background */
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        .product-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .checkout-step-indicator.active {
+            background-color: #10b981; /* Green-500 */
+            color: white;
+        }
+        .checkout-step-indicator.completed {
+            background-color: #059669; /* Green-600 */
+            color: white;
+        }
+        .checkout-step-indicator {
+            transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* Style for active navigation link */
+        .nav-link.active {
+            color: #4f46e5; /* Indigo-600 */
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm py-4 px-6 md:px-12 sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-indigo-700">ElectroShop</h1>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="#" id="nav-home" class="nav-link text-gray-600 hover:text-indigo-700 font-medium transition duration-200 active">Home</a></li>
+                    <li><a href="#" id="nav-shop" class="nav-link text-gray-600 hover:text-indigo-700 font-medium transition duration-200">Shop</a></li>
+                    <li><a href="#" id="nav-cart" class="nav-link text-gray-600 hover:text-indigo-700 font-medium transition duration-200">Cart (<span id="cart-count">0</span>)</a></li>
+                    <li><a href="#" id="nav-login" class="nav-link text-gray-600 hover:text-indigo-700 font-medium transition duration-200">Login</a></li>
+                    <li><a href="#" id="nav-register" class="nav-link text-gray-600 hover:text-indigo-700 font-medium transition duration-200">Register</a></li>
+                    <li><a href="#" id="nav-admin" class="nav-link text-gray-600 hover:text-indigo-700 font-medium transition duration-200">Admin</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="container mx-auto my-8 p-4 md:p-8 bg-white rounded-lg shadow-lg">
+
+        <!-- Home Page Section -->
+        <section id="home-page" class="mb-12">
+            <div class="text-center py-16 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg shadow-xl">
+                <h2 class="text-5xl font-extrabold mb-4">Welcome to ElectroShop!</h2>
+                <p class="text-xl mb-8">Your one-stop shop for the latest electronics and accessories.</p>
+                <button id="shop-now-button" class="bg-white text-indigo-700 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-100 transition duration-300 transform hover:scale-105">Click here for more Products</button>
+            </div>
+
+            <div class="mt-12 text-center">
+                <h3 class="text-3xl font-bold text-gray-900 mb-6">Featured Products</h3>
+                <div id="featured-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Featured products will be dynamically loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Product Listing Section -->
+        <section id="product-listing" class="mb-12 hidden">
+            <h2 class="text-4xl font-extrabold text-gray-900 mb-8 text-center">Our Products</h2>
+
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- Filtering and Sorting Sidebar -->
+                <aside class="w-full md:w-1/4 bg-gray-50 p-6 rounded-lg shadow-md">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-6">Filter & Sort</h3>
+
+                    <!-- Category Filter -->
+                    <div class="mb-6">
+                        <label for="category-filter" class="block text-lg font-medium text-gray-700 mb-2">Category</label>
+                        <select id="category-filter" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition duration-200">
+                            <option value="all">All Categories</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="accessories">Accessories</option>
+                            <option value="home-appliances">Home Appliances</option>
+                            <option value="smartphones">Smartphones</option>
+                        </select>
+                    </div>
+
+                    <!-- Price Range Filter -->
+                    <div class="mb-6">
+                        <label for="price-range" class="block text-lg font-medium text-gray-700 mb-2">Price Range</label>
+                        <div class="flex items-center space-x-3">
+                            <input type="number" id="min-price" placeholder="Min" class="w-1/2 p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition duration-200">
+                            <span>-</span>
+                            <input type="number" id="max-price" placeholder="Max" class="w-1/2 p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition duration-200">
+                        </div>
+                        <button id="apply-price-filter" class="mt-4 w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition duration-200 shadow-md">Apply Price</button>
+                    </div>
+
+                    <!-- Brand Filter -->
+                    <div class="mb-6">
+                        <label class="block text-lg font-medium text-gray-700 mb-2">Brand</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" name="brand-filter" value="samsung" class="form-checkbox h-5 w-5 text-indigo-600 rounded-md">
+                                <span class="ml-2 text-gray-700">Samsung</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="brand-filter" value="apple" class="form-checkbox h-5 w-5 text-indigo-600 rounded-md">
+                                <span class="ml-2 text-gray-700">Apple</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="brand-filter" value="sony" class="form-checkbox h-5 w-5 text-indigo-600 rounded-md">
+                                <span class="ml-2 text-gray-700">Sony</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="brand-filter" value="jbl" class="form-checkbox h-5 w-5 text-indigo-600 rounded-md">
+                                <span class="ml-2 text-gray-700">JBL</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="brand-filter" value="microsoft" class="form-checkbox h-5 w-5 text-indigo-600 rounded-md">
+                                <span class="ml-2 text-gray-700">Microsoft</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="brand-filter" value="irobot" class="form-checkbox h-5 w-5 text-indigo-600 rounded-md">
+                                <span class="ml-2 text-gray-700">iRobot</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Sorting Options -->
+                    <div>
+                        <label for="sort-by" class="block text-lg font-medium text-gray-700 mb-2">Sort By</label>
+                        <select id="sort-by" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition duration-200">
+                            <option value="popularity">Popularity</option>
+                            <option value="price-asc">Price: Low to High</option>
+                            <option value="price-desc">Price: High to Low</option>
+                            <option value="newest">Newest Arrivals</option>
+                        </select>
+                    </div>
+                </aside>
+
+                <!-- Product Grid -->
+                <div id="product-grid" class="w-full md:w-3/4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Product Cards will be injected here by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Checkout Process Section -->
+        <section id="checkout-process" class="mt-16 hidden">
+            <h2 class="text-4xl font-extrabold text-gray-900 mb-8 text-center">Checkout</h2>
+
+            <!-- Checkout Steps Indicator -->
+            <div class="flex justify-center mb-8">
+                <div class="flex items-center space-x-4">
+                    <div id="step-1-indicator" class="checkout-step-indicator active w-10 h-10 flex items-center justify-center rounded-full text-lg font-bold shadow-md">1</div>
+                    <div class="w-16 h-1 bg-gray-300 rounded-full"></div>
+                    <div id="step-2-indicator" class="checkout-step-indicator w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-gray-500 text-lg font-bold shadow-md">2</div>
+                    <div class="w-16 h-1 bg-gray-300 rounded-full"></div>
+                    <div id="step-3-indicator" class="checkout-step-indicator w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-gray-500 text-lg font-bold shadow-md">3</div>
+                </div>
+            </div>
+
+            <!-- Checkout Forms (Tabs) -->
+            <div class="bg-white p-8 rounded-lg shadow-md max-w-3xl mx-auto">
+
+                <!-- Step 1: Shipping Address -->
+                <div id="shipping-address-tab" class="tab-content active">
+                    <h3 class="text-3xl font-semibold text-gray-800 mb-6 text-center">Shipping Address</h3>
+                    <form id="shipping-form" class="space-y-6">
+                        <div>
+                            <label for="full-name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                            <input type="text" id="full-name" name="full-name" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" required>
+                        </div>
+                        <div>
+                            <label for="address-line1" class="block text-sm font-medium text-gray-700 mb-1">Address Line 1</label>
+                            <input type="text" id="address-line1" name="address-line1" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" required>
+                        </div>
+                        <div>
+                            <label for="address-line2" class="block text-sm font-medium text-gray-700 mb-1">Address Line 2 (Optional)</label>
+                            <input type="text" id="address-line2" name="address-line2" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                                <input type="text" id="city" name="city" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" required>
+                            </div>
+                            <div>
+                                <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State</label>
+                                <input type="text" id="state" name="state" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" required>
+                            </div>
+                            <div>
+                                <label for="pin-code" class="block text-sm font-medium text-gray-700 mb-1">pin Code</label>
+                                <input type="text" id="pin-code" name="pin-code" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" required pattern="[0-9]{5}(-[0-9]{4})?">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" required pattern="[0-9]{10,15}">
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="button" id="next-to-payment" class="bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 transition duration-200 shadow-lg">Next: Payment</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Step 2: Payment Information -->
+                <div id="payment-info-tab" class="tab-content">
+                    <h3 class="text-3xl font-semibold text-gray-800 mb-6 text-center">Payment Information</h3>
+                    <form id="payment-form" class="space-y-6">
+                        <div>
+                            <label for="card-number" class="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
+                            <input type="text" id="card-number" name="card-number" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" required pattern="[0-9]{13,16}" placeholder="XXXX XXXX XXXX XXXX">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="expiry-date" class="block text-sm font-medium text-gray-700 mb-1">Expiry Date (MM/YY)</label>
+                                <input type="text" id="expiry-date" name="expiry-date" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" required pattern="(0[1-9]|1[0-2])\/([0-9]{2})" placeholder="MM/YY">
+                            </div>
+                            <div>
+                                <label for="cvv" class="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                                <input type="text" id="cvv" name="cvv" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" required pattern="[0-9]{3,4}" placeholder="XXX">
+                            </div>
+                            <div class="col-span-1 md:col-span-1">
+                                <label for="card-holder-name" class="block text-sm font-medium text-gray-700 mb-1">Card Holder Name</label>
+                                <input type="text" id="card-holder-name" name="card-holder-name" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" required>
+                            </div>
+                        </div>
+                        <div class="flex justify-between">
+                            <button type="button" id="prev-to-shipping" class="bg-gray-300 text-gray-800 py-3 px-6 rounded-md hover:bg-gray-400 transition duration-200 shadow-md">Previous</button>
+                            <button type="button" id="next-to-review" class="bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 transition duration-200 shadow-lg">Next: Review Order</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Step 3: Review Order -->
+                <div id="review-order-tab" class="tab-content">
+                    <h3 class="text-3xl font-semibold text-gray-800 mb-6 text-center">Review Your Order</h3>
+
+                    <!-- Order Summary -->
+                    <div class="bg-gray-50 p-6 rounded-lg mb-6 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-4">Items in Cart</h4>
+                        <div id="review-cart-items" class="space-y-4">
+                            <!-- Cart items will be dynamically added here -->
+                        </div>
+                        <div class="border-t border-gray-200 mt-6 pt-4 flex justify-between items-center">
+                            <span class="text-lg font-semibold text-gray-800">Total:</span>
+                            <span id="review-total-price" class="text-2xl font-bold text-indigo-700">$0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Shipping Address Summary -->
+                    <div class="bg-gray-50 p-6 rounded-lg mb-6 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-4">Shipping Address</h4>
+                        <p id="review-shipping-address" class="text-gray-700 leading-relaxed"></p>
+                    </div>
+
+                    <!-- Payment Info Summary -->
+                    <div class="bg-gray-50 p-6 rounded-lg mb-6 shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-4">Payment Method</h4>
+                        <p id="review-payment-info" class="text-gray-700"></p>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <button type="button" id="prev-to-payment" class="bg-gray-300 text-gray-800 py-3 px-6 rounded-md hover:bg-gray-400 transition duration-200 shadow-md">Previous</button>
+                        <button type="button" id="place-order-button" class="bg-green-600 text-white py-3 px-6 rounded-md hover:bg-green-700 transition duration-200 shadow-lg">Place Order</button>
+                    </div>
+                </div>
+
+                <!-- Order Confirmation Message -->
+                <div id="order-confirmation" class="hidden text-center py-12">
+                    <svg class="mx-auto h-24 w-24 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h3 class="text-3xl font-semibold text-gray-800 mt-4 mb-2">Order Placed Successfully!</h3>
+                    <p class="text-gray-600 text-lg">Thank you for your purchase. Your order #<span id="order-id">12345</span> has been confirmed.</p>
+                    <button id="continue-shopping-button" class="mt-8 bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 transition duration-200 shadow-lg">Continue Shopping</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Login Page Section -->
+        <section id="login-page" class="mt-16 hidden">
+            <h2 class="text-4xl font-extrabold text-gray-900 mb-8 text-center">Login to Your Account</h2>
+            <div class="bg-white p-8 rounded-lg shadow-md max-w-md mx-auto">
+                <form id="login-form" class="space-y-6">
+                    <div>
+                        <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <input type="email" id="login-email" name="login-email" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input type="password" id="login-password" name="login-password" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 transition duration-200 shadow-lg">Login</button>
+                    <p class="text-center text-gray-600">Don't have an account? <a href="#" id="go-to-register" class="text-indigo-600 hover:underline">Register here</a></p>
+                </form>
+            </div>
+        </section>
+
+        <!-- Register Page Section -->
+        <section id="register-page" class="mt-16 hidden">
+            <h2 class="text-4xl font-extrabold text-gray-900 mb-8 text-center">Create New Account</h2>
+            <div class="bg-white p-8 rounded-lg shadow-md max-w-md mx-auto">
+                <form id="register-form" class="space-y-6">
+                    <div>
+                        <label for="register-name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <input type="text" id="register-name" name="register-name" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="register-email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <input type="email" id="register-email" name="register-email" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="register-password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input type="password" id="register-password" name="register-password" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="register-confirm-password" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                        <input type="password" id="register-confirm-password" name="register-confirm-password" class="w-full p-3 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-3 px-6 rounded-md hover:bg-indigo-700 transition duration-200 shadow-lg">Register</button>
+                    <p class="text-center text-gray-600">Already have an account? <a href="#" id="go-to-login" class="text-indigo-600 hover:underline">Login here</a></p>
+                </form>
+            </div>
+        </section>
+
+        <!-- Admin Page Section -->
+        <section id="admin-page" class="mt-16 hidden">
+            <h2 class="text-4xl font-extrabold text-gray-900 mb-8 text-center">Admin Dashboard</h2>
+            <div class="bg-white p-8 rounded-lg shadow-md max-w-4xl mx-auto">
+                <p class="text-gray-700 text-lg mb-6">This is a placeholder for the admin dashboard. In a real application, this would contain tools for managing products, orders, users, etc.</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Product Management</h3>
+                        <p class="text-gray-600 mb-4">Add, edit, or delete products from your store.</p>
+                        <button id="manage-products-btn" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200">Manage Products</button>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Order Management</h3>
+                        <p class="text-gray-600 mb-4">View and process customer orders.</p>
+                        <button id="manage-orders-btn" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200">Manage Orders</button>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">User Management</h3>
+                        <p class="text-gray-600 mb-4">Manage user accounts and roles.</p>
+                        <button id="manage-users-btn" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200">Manage Users</button>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Reports & Analytics</h3>
+                        <p class="text-gray-600 mb-4">Access sales reports and website analytics.</p>
+                        <button id="view-reports-btn" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200">View Reports</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2025 ElectroShop All rights reserved</p>
+            <div class="flex justify-center space-x-4 mt-4">
+                <a href="#" class="text-gray-400 hover:text-white transition duration-200">Privacy Policy</a>
+                <a href="#" class="text-gray-400 hover:text-white transition duration-200">Terms of Service</a>
+                <a href="#" class="text-gray-400 hover:text-white transition duration-200">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- Dummy Product Data ---
+        // In a real application, this data would typically come from a backend API.
+        // You can change the 'imageUrl' for each product to use your own photos.
+        const products = [
+            {
+                id: 1,
+                name: "Smartphone galaxy S24",
+                category: "electronics",
+                subCategory: "smartphones",
+                brand: "samsung",
+                price:56000,
+                description: "A powerful smartphone with a stunning display and long-lasting battery.",
+                imageUrl: "https://m.media-amazon.com/images/I/81vxWpPpgNL.jpg", // Example: Samsung Galaxy S23 Ultra
+                rating: 4.5,
+                reviews: 250,
+                popularity: 100
+            },
+            {
+                id: 2,
+                name: "Wireless Headphones",
+                category: "electronics",
+                subCategory: "accessories",
+                brand: "sony",
+                price: 1999,
+                description: "Immersive sound experience with noise-cancelling technology.",
+                imageUrl: "https://www.bhphotovideo.com/images/images2500x2500/sony_wh1000xm4_b_wh_1000xm4_wireless_noise_canceling_over_ear_1582549.jpg", // Example: Sony WH-1000XM5
+                rating: 4.2,
+                reviews: 180,
+                popularity: 80
+            },
+            {
+                id: 3,
+                name: "Smart TV 55-inch",
+                category: "electronics",
+                subCategory: "home-appliances",
+                brand: "samsung",
+                price: 70000,
+                description: "4K UHD Smart TV with vibrant colors and smart features.",
+                imageUrl: "https://tse3.mm.bing.net/th/id/OIP.R9A8MnGGWNyLxb5mTNxuugHaEp?pid=Api&P=0&h=180", // Example: Samsung Smart TV
+                rating: 4.8,
+                reviews: 300,
+                popularity: 120
+            },
+            {
+                id: 4,
+                name: "Laptop Pro 14",
+                category: "electronics",
+                subCategory: "laptops",
+                brand: "apple",
+                price: 60000,
+                description: "High-performance laptop for professionals and creatives.",
+                imageUrl: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1926&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // Example: MacBook Pro
+                rating: 4.7,
+                reviews: 210,
+                popularity: 90
+            },
+            {
+                id: 5,
+                name: "Smartwatch Series 7",
+                category: "accessories",
+                subCategory: "wearables",
+                brand: "apple",
+                price: 1000,
+                description: "Track your fitness and stay connected on the go.",
+                imageUrl: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // Example: Apple Watch
+                rating: 4.3,
+                reviews: 150,
+                popularity: 70
+            },
+            {
+                id: 6,
+                name: "Portable Bluetooth Speaker",
+                category: "electronics",
+                subCategory: "audio",
+                brand: "jbl", // Changed brand to JBL for variety
+                price: 1599,
+                description: "Compact and powerful speaker for music on the go.",
+                imageUrl: "https://m.media-amazon.com/images/I/81uJyMRONOL.jpg", // New image for JBL speaker
+                rating: 4.0,
+                reviews: 90,
+                popularity: 60
+            },
+            {
+                id: 7,
+                name: "Gaming Console X",
+                category: "electronics",
+                subCategory: "gaming",
+                brand: "microsoft",
+                price: 4999,
+                description: "Next-gen gaming console for immersive gaming.",
+                imageUrl: "https://tse2.mm.bing.net/th/id/OIP.eJPhrmOUN7HD57yo2rQrtwHaE8?pid=Api&P=0&h=180", // Example: Xbox Series X
+                rating: 4.6,
+                reviews: 280,
+                popularity: 110
+            },
+            {
+                id: 8,
+                name: "Robot Vacuum Cleaner",
+                category: "home-appliances",
+                subCategory: "cleaning",
+                brand: "irobot",
+                price: 1199,
+                description: "Automated cleaning for a spotless home.",
+                imageUrl: "https://tse3.mm.bing.net/th/id/OIP.KPHWM63qPCGOkIinHbmzTAHaGk?pid=Api&P=0&h=180", // Example: Roomba
+                rating: 4.1,
+                reviews: 130,
+                popularity: 65
+            },
+            {
+                id: 9,
+                name: "Noise Cancelling Earbuds",
+                category: "electronics",
+                subCategory: "accessories",
+                brand: "sony",
+                price: 999,
+                description: "Compact earbuds with excellent noise cancellation.",
+                imageUrl: "https://tse1.mm.bing.net/th/id/OIP.xfATMcAHRcUSxw6D5SugfgHaGk?pid=Api&P=0&h=180", // Example: Sony WF-1000XM4
+                rating: 4.4,
+                reviews: 160,
+                popularity: 75
+            },
+            {
+                id: 10,
+                name: "Gaming Mouse",
+                category: "accessories",
+                subCategory: "gaming-peripherals",
+                brand: "logitech",
+                price: 1099,
+                description: "High-precision gaming mouse with customizable RGB lighting.",
+                imageUrl: "https://tse2.mm.bing.net/th/id/OIP.UbYTNjuOPgqWDHdb1HUqewHaGk?pid=Api&P=0&h=180D", // New image for gaming mouse
+                rating: 4.6,
+                reviews: 110,
+                popularity: 55
+            },
+            {
+                id: 11,
+                name: "USB-C Hub",
+                category: "accessories",
+                subCategory: "cables-adapters",
+                brand: "anker",
+                price: 599,
+                description: "Multi-port USB-C hub for laptops and devices.",
+                imageUrl: "https://tse4.mm.bing.net/th/id/OIP.FZj3AsRQlwOm7BaNK2b4kgHaIK?pid=Api&P=0&h=180", // New image for USB-C Hub
+                rating: 4.0,
+                reviews: 70,
+                popularity: 40
+            },
+            {
+                id: 12,
+                name: "Portable Power Bank",
+                category: "accessories",
+                subCategory: "power-solutions",
+                brand: "xiaomi",
+                price: 1500,
+                description: "High-capacity power bank for charging on the go.",
+                imageUrl: "https://gagadget.com/media/post_big/Xiaomi-165W-power-bank.jpg", // New image for Power Bank
+                rating: 4.3,
+                reviews: 190,
+                popularity: 85
+            }
+        ];
+
+        let currentProducts = [...products]; // Working copy of products for filtering/sorting
+        let cart = []; // Global cart array
+
+        // --- DOM Elements ---
+        const productGrid = document.getElementById('product-grid');
+        const featuredProductsGrid = document.getElementById('featured-products-grid');
+        const categoryFilter = document.getElementById('category-filter');
+        const minPriceInput = document.getElementById('min-price');
+        const maxPriceInput = document.getElementById('max-price');
+        const applyPriceFilterBtn = document.getElementById('apply-price-filter');
+        const brandCheckboxes = document.querySelectorAll('input[name="brand-filter"]');
+        const sortBySelect = document.getElementById('sort-by');
+        const cartCountSpan = document.getElementById('cart-count');
+
+        const homePageSection = document.getElementById('home-page');
+        const productListingSection = document.getElementById('product-listing');
+        const checkoutProcessSection = document.getElementById('checkout-process');
+        const loginPageSection = document.getElementById('login-page');
+        const registerPageSection = document.getElementById('register-page');
+        const adminPageSection = document.getElementById('admin-page');
+
+        const navHome = document.getElementById('nav-home');
+        const navShop = document.getElementById('nav-shop');
+        const navCart = document.getElementById('nav-cart');
+        const navLogin = document.getElementById('nav-login');
+        const navRegister = document.getElementById('nav-register');
+        const navAdmin = document.getElementById('nav-admin');
+        const shopNowButton = document.getElementById('shop-now-button');
+
+        const nextToPaymentBtn = document.getElementById('next-to-payment');
+        const prevToShippingBtn = document.getElementById('prev-to-shipping');
+        const nextToReviewBtn = document.getElementById('next-to-review');
+        const prevToPaymentBtn = document.getElementById('prev-to-payment');
+        const placeOrderButton = document.getElementById('place-order-button');
+        const continueShoppingButton = document.getElementById('continue-shopping-button');
+
+        const shippingForm = document.getElementById('shipping-form');
+        const paymentForm = document.getElementById('payment-form');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+
+        const shippingAddressTab = document.getElementById('shipping-address-tab');
+        const paymentInfoTab = document.getElementById('payment-info-tab');
+        const reviewOrderTab = document.getElementById('review-order-tab');
+        const orderConfirmation = document.getElementById('order-confirmation');
+
+        const step1Indicator = document.getElementById('step-1-indicator');
+        const step2Indicator = document.getElementById('step-2-indicator');
+        const step3Indicator = document.getElementById('step-3-indicator');
+
+        const reviewCartItems = document.getElementById('review-cart-items');
+        const reviewTotalPrice = document.getElementById('review-total-price');
+        const reviewShippingAddress = document.getElementById('review-shipping-address');
+        const reviewPaymentInfo = document.getElementById('review-payment-info');
+        const orderIdSpan = document.getElementById('order-id');
+
+        const goToRegisterLink = document.getElementById('go-to-register');
+        const goToLoginLink = document.getElementById('go-to-login');
+
+        // Admin panel buttons
+        const manageProductsBtn = document.getElementById('manage-products-btn');
+        const manageOrdersBtn = document.getElementById('manage-orders-btn');
+        const manageUsersBtn = document.getElementById('manage-users-btn');
+        const viewReportsBtn = document.getElementById('view-reports-btn');
+
+
+        let currentCheckoutStep = 1; // 1: Shipping, 2: Payment, 3: Review
+
+        // --- Utility Function to Hide All Main Sections ---
+        function hideAllSections() {
+            homePageSection.classList.add('hidden');
+            productListingSection.classList.add('hidden');
+            checkoutProcessSection.classList.add('hidden');
+            loginPageSection.classList.add('hidden');
+            registerPageSection.classList.add('hidden');
+            adminPageSection.classList.add('hidden');
+            orderConfirmation.classList.remove('active'); // Ensure confirmation is hidden
+        }
+
+        // --- Set Active Navigation Link ---
+        function setActiveNavLink(activeId) {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.getElementById(activeId).classList.add('active');
+        }
+
+        // --- Product Rendering Function ---
+        function renderProducts(productsToRender, targetElement) {
+            targetElement.innerHTML = ''; // Clear existing products
+            if (productsToRender.length === 0) {
+                targetElement.innerHTML = '<p class="text-center text-gray-600 text-xl col-span-full">No products found matching your criteria.</p>';
+                return;
+            }
+
+            productsToRender.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'bg-white rounded-lg shadow-md overflow-hidden product-card';
+                productCard.innerHTML = `
+                    <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-48 object-cover">
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">${product.name}</h3>
+                        <p class="text-gray-600 text-sm mb-3">${product.description}</p>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-2xl font-bold text-indigo-700">$${product.price.toFixed(2)}</span>
+                            <span class="text-yellow-500 text-sm">★★★★☆ (${product.reviews} reviews)</span>
+                        </div>
+                        <button class="w-full bg-indigo-600 text-white py-2.5 rounded-md hover:bg-indigo-700 transition duration-200 shadow-lg add-to-cart-btn" data-product-id="${product.id}">Add to Cart</button>
+                    </div>
+                `;
+                targetElement.appendChild(productCard);
+            });
+
+            // Add event listeners to new "Add to Cart" buttons
+            document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const productId = parseInt(event.target.dataset.productId);
+                    addToCart(productId);
+                });
+            });
+        }
+
+        // --- Filtering Logic ---
+        function applyFilters() {
+            let filtered = [...products];
+
+            // Category Filter
+            const selectedCategory = categoryFilter.value;
+            if (selectedCategory !== 'all') {
+                filtered = filtered.filter(p => p.category === selectedCategory || p.subCategory === selectedCategory);
+            }
+
+            // Price Range Filter
+            const minPrice = parseFloat(minPriceInput.value);
+            const maxPrice = parseFloat(maxPriceInput.value);
+            if (!isNaN(minPrice)) {
+                filtered = filtered.filter(p => p.price >= minPrice);
+            }
+            if (!isNaN(maxPrice)) {
+                filtered = filtered.filter(p => p.price <= maxPrice);
+            }
+
+            // Brand Filter
+            const selectedBrands = Array.from(brandCheckboxes)
+                                        .filter(checkbox => checkbox.checked)
+                                        .map(checkbox => checkbox.value);
+            if (selectedBrands.length > 0) {
+                filtered = filtered.filter(p => selectedBrands.includes(p.brand));
+            }
+
+            currentProducts = filtered; // Update the working copy
+            applySorting(); // Apply sorting after filtering
+        }
+
+        // --- Sorting Logic ---
+        function applySorting() {
+            const sortBy = sortBySelect.value;
+            let sorted = [...currentProducts]; // Sort the currently filtered products
+
+            switch (sortBy) {
+                case 'popularity':
+                    sorted.sort((a, b) => b.popularity - a.popularity);
+                    break;
+                case 'price-asc':
+                    sorted.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price-desc':
+                    sorted.sort((a, b) => b.price - a.price);
+                    break;
+                case 'newest':
+                    // For dummy data, we'll simulate 'newest' by ID for now,
+                    // In a real app, products would have a 'dateAdded' property.
+                    sorted.sort((a, b) => b.id - a.id);
+                    break;
+            }
+            renderProducts(sorted, productGrid);
+        }
+
+        // --- Event Listeners for Filtering/Sorting ---
+        categoryFilter.addEventListener('change', applyFilters);
+        applyPriceFilterBtn.addEventListener('click', applyFilters);
+        brandCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', applyFilters);
+        });
+        sortBySelect.addEventListener('change', applySorting);
+
+        // --- Cart Management ---
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                const existingItem = cart.find(item => item.id === productId);
+                if (existingItem) {
+                    existingItem.quantity++;
+                } else {
+                    cart.push({ ...product, quantity: 1 });
+                }
+                updateCartCount();
+                alertMessage('Product added to cart!', 'success'); // Use a custom message box instead of alert
+            }
+        }
+
+        function updateCartCount() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCountSpan.textContent = totalItems;
+        }
+
+        function getCartTotal() {
+            return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+        }
+
+        // --- Checkout Process Logic ---
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function updateCheckoutIndicators(step) {
+            step1Indicator.classList.remove('active', 'completed');
+            step2Indicator.classList.remove('active', 'completed');
+            step3Indicator.classList.remove('active', 'completed');
+
+            step1Indicator.classList.add('bg-gray-200', 'text-gray-500');
+            step2Indicator.classList.add('bg-gray-200', 'text-gray-500');
+            step3Indicator.classList.add('bg-gray-200', 'text-gray-500');
+
+            if (step >= 1) {
+                step1Indicator.classList.add('active');
+                step1Indicator.classList.remove('bg-gray-200', 'text-gray-500');
+            }
+            if (step >= 2) {
+                step1Indicator.classList.add('completed');
+                step2Indicator.classList.add('active');
+                step2Indicator.classList.remove('bg-gray-200', 'text-gray-500');
+            }
+            if (step >= 3) {
+                step2Indicator.classList.add('completed');
+                step3Indicator.classList.add('active');
+                step3Indicator.classList.remove('bg-gray-200', 'text-gray-500');
+            }
+        }
+
+        function validateForm(form) {
+            let isValid = true;
+            form.querySelectorAll('input[required]').forEach(input => {
+                if (!input.value.trim()) {
+                    input.classList.add('border-red-500');
+                    isValid = false;
+                } else {
+                    input.classList.remove('border-red-500');
+                }
+                // Basic pattern validation
+                if (input.pattern && !new RegExp(input.pattern).test(input.value)) {
+                    input.classList.add('border-red-500');
+                    isValid = false;
+                }
+            });
+            return isValid;
+        }
+
+        // --- Navigation Buttons ---
+        nextToPaymentBtn.addEventListener('click', () => {
+            if (validateForm(shippingForm)) {
+                currentCheckoutStep = 2;
+                showTab('payment-info-tab');
+                updateCheckoutIndicators(currentCheckoutStep);
+            } else {
+                alertMessage('Please fill in all required shipping details.', 'error');
+            }
+        });
+
+        prevToShippingBtn.addEventListener('click', () => {
+            currentCheckoutStep = 1;
+            showTab('shipping-address-tab');
+            updateCheckoutIndicators(currentCheckoutStep);
+        });
+
+        nextToReviewBtn.addEventListener('click', () => {
+            if (validateForm(paymentForm)) {
+                currentCheckoutStep = 3;
+                showTab('review-order-tab');
+                updateCheckoutIndicators(currentCheckoutStep);
+                populateReviewOrder();
+            } else {
+                alertMessage('Please fill in all required payment details.', 'error');
+            }
+        });
+
+        prevToPaymentBtn.addEventListener('click', () => {
+            currentCheckoutStep = 2;
+            showTab('payment-info-tab');
+            updateCheckoutIndicators(currentCheckoutStep);
+        });
+
+        // --- Populate Review Order Tab ---
+        function populateReviewOrder() {
+            // Cart Items
+            reviewCartItems.innerHTML = '';
+            if (cart.length === 0) {
+                reviewCartItems.innerHTML = '<p class="text-gray-600">Your cart is empty.</p>';
+            } else {
+                cart.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'flex justify-between items-center border-b border-gray-100 py-2';
+                    itemDiv.innerHTML = `
+                        <span class="text-gray-700">${item.name} x ${item.quantity}</span>
+                        <span class="font-medium text-gray-800">$${(item.price * item.quantity).toFixed(2)}</span>
+                    `;
+                    reviewCartItems.appendChild(itemDiv);
+                });
+            }
+            reviewTotalPrice.textContent = `$${getCartTotal().toFixed(2)}`;
+
+            // Shipping Address Summary
+            const fullName = document.getElementById('full-name').value;
+            const address1 = document.getElementById('address-line1').value;
+            const address2 = document.getElementById('address-line2').value;
+            const city = document.getElementById('city').value;
+            const state = document.getElementById('state').value;
+            const pinCode = document.getElementById('pin-code').value;
+            const phone = document.getElementById('phone').value;
+
+            reviewShippingAddress.innerHTML = `
+                ${fullName}<br>
+                ${address1}<br>
+                ${address2 ? address2 + '<br>' : ''}
+                ${city}, ${state} ${zipCode}<br>
+                Phone: ${phone}
+            `;
+
+            // Payment Info Summary
+            const cardNumber = document.getElementById('card-number').value;
+            const lastFourDigits = cardNumber.slice(-4);
+            const expiryDate = document.getElementById('expiry-date').value;
+            const cardHolderName = document.getElementById('card-holder-name').value;
+
+            reviewPaymentInfo.innerHTML = `
+                Card Type: Visa/Mastercard (simulated)<br>
+                Card Number: **** **** **** ${lastFourDigits}<br>
+                Expiry: ${expiryDate}<br>
+                Card Holder: ${cardHolderName}
+            `;
+        }
+
+        // --- Place Order Button ---
+        placeOrderButton.addEventListener('click', async () => {
+            // In this client-side only version, we simulate order placement.
+            // In a real application, this would involve sending data to a backend server
+            // for processing, payment, and database storage.
+
+            alertMessage('Processing your order...', 'info');
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate processing delay
+
+            const orderId = 'ORD' + Math.floor(Math.random() * 100000); // Dummy order ID
+
+            // Show confirmation
+            hideAllSections();
+            orderConfirmation.classList.add('active'); // Show confirmation message
+            orderIdSpan.textContent = orderId;
+
+            // Clear cart after simulated successful order
+            cart = [];
+            updateCartCount();
+            alertMessage('Order placed successfully!', 'success');
+        });
+
+        // --- Continue Shopping Button ---
+        continueShoppingButton.addEventListener('click', () => {
+            hideAllSections();
+            homePageSection.classList.remove('hidden'); // Go back to home page
+            setActiveNavLink('nav-home');
+            currentCheckoutStep = 1;
+            updateCheckoutIndicators(currentCheckoutStep);
+            showTab('shipping-address-tab'); // Ensure shipping tab is active if checkout is re-entered
+            shippingForm.reset(); // Clear form fields
+            paymentForm.reset();
+        });
+
+
+        // --- Custom Alert Message Box (instead of alert()) ---
+        // This provides a user-friendly notification system.
+        function alertMessage(message, type) {
+            let messageBox = document.getElementById('custom-message-box');
+            if (!messageBox) {
+                messageBox = document.createElement('div');
+                messageBox.id = 'custom-message-box';
+                messageBox.className = 'fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white z-[1000] transition-all duration-300 transform translate-x-full opacity-0';
+                document.body.appendChild(messageBox);
+            }
+
+            messageBox.textContent = message;
+            messageBox.classList.remove('bg-green-500', 'bg-red-500', 'bg-blue-500');
+
+            if (type === 'success') {
+                messageBox.classList.add('bg-green-500');
+            } else if (type === 'error') {
+                messageBox.classList.add('bg-red-500');
+            } else { // info or default
+                messageBox.classList.add('bg-blue-500');
+            }
+
+            // Show message
+            setTimeout(() => {
+                messageBox.classList.remove('translate-x-full', 'opacity-0');
+                messageBox.classList.add('translate-x-0', 'opacity-100');
+            }, 50);
+
+            // Hide message after 3 seconds
+            setTimeout(() => {
+                messageBox.classList.remove('translate-x-0', 'opacity-100');
+                messageBox.classList.add('translate-x-full', 'opacity-0');
+            }, 3000);
+        }
+
+        // --- Navigation Event Listeners ---
+        navHome.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideAllSections();
+            homePageSection.classList.remove('hidden');
+            setActiveNavLink('nav-home');
+            renderFeaturedProducts();
+        });
+
+        navShop.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideAllSections();
+            productListingSection.classList.remove('hidden');
+            setActiveNavLink('nav-shop');
+            renderProducts(currentProducts, productGrid); // Re-render filtered/sorted products
+        });
+
+        navCart.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (cart.length === 0) {
+                alertMessage('Your cart is empty. Please add items before checking out.', 'info');
+                return;
+            }
+            hideAllSections();
+            checkoutProcessSection.classList.remove('hidden');
+            setActiveNavLink('nav-cart');
+            currentCheckoutStep = 1;
+            updateCheckoutIndicators(currentCheckoutStep);
+            showTab('shipping-address-tab');
+        });
+
+        navLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideAllSections();
+            loginPageSection.classList.remove('hidden');
+            setActiveNavLink('nav-login');
+            loginForm.reset(); // Clear form fields
+        });
+
+        navRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideAllSections();
+            registerPageSection.classList.remove('hidden');
+            setActiveNavLink('nav-register');
+            registerForm.reset(); // Clear form fields
+        });
+
+        navAdmin.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideAllSections();
+            adminPageSection.classList.remove('hidden');
+            setActiveNavLink('nav-admin');
+        });
+
+        shopNowButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            navShop.click(); // Simulate click on Shop link
+        });
+
+        goToRegisterLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            navRegister.click(); // Simulate click on Register link
+        });
+
+        goToLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            navLogin.click(); // Simulate click on Login link
+        });
+
+        // --- Form Submission Handlers (Client-side simulation) ---
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            // In a real app: send data to backend for authentication
+            alertMessage('Attempting login...', 'info');
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+
+            // Simulate successful login
+            alertMessage('Login successful!', 'success');
+            // After successful login, redirect to home page after message is seen
+            setTimeout(() => {
+                navHome.click();
+            }, 1500);
+        });
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+
+            if (password !== confirmPassword) {
+                alertMessage('Passwords do not match!', 'error');
+                document.getElementById('register-confirm-password').classList.add('border-red-500');
+                return;
+            }
+            
+            alertMessage('Attempting registration...', 'info');
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
+
+            // Simulate successful registration
+            alertMessage('Registration successful! Please log in.', 'success');
+            // After successful registration, redirect to login page after message is seen
+            setTimeout(() => {
+                navLogin.click();
+            }, 1500);
+        });
+
+        // --- Admin Panel Button Event Listeners ---
+        manageProductsBtn.addEventListener('click', () => {
+            alertMessage('Product Management: This would open a product editing interface.', 'info');
+        });
+
+        manageOrdersBtn.addEventListener('click', () => {
+            alertMessage('Order Management: This would display a list of customer orders.', 'info');
+        });
+
+        manageUsersBtn.addEventListener('click', () => {
+            alertMessage('User Management: This would allow managing user accounts and roles.', 'info');
+        });
+
+        viewReportsBtn.addEventListener('click', () => {
+            alertMessage('Reports & Analytics: This would show sales data and website metrics.', 'info');
+        });
+
+
+        // --- Render Featured Products on Home Page ---
+        function renderFeaturedProducts() {
+            // Select a few popular products for the home page
+            const featured = products.filter(p => p.popularity > 80).slice(0, 3);
+            renderProducts(featured, featuredProductsGrid);
+        }
+
+        // Initial render on page load
+        renderProducts(currentProducts, productGrid); // Render for shop page
+        updateCartCount();
+        updateCheckoutIndicators(currentCheckoutStep);
+        renderFeaturedProducts(); // Render for home page
+        setActiveNavLink('nav-home'); // Set home as active initially
+    </script>
+</body>
+</html>
